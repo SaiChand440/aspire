@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, Switch } from 'react-native'
 import React from 'react'
 import { Colors } from '@/constants/Colors'
 
@@ -6,9 +6,10 @@ interface IMainScreenListView {
   children: React.ReactNode;
   title: string;
   subtitle: string;
+  showSwitch?: boolean;
 }
 
-const MainScreenListView = ({children, title, subtitle}: IMainScreenListView) => {
+const MainScreenListView = ({children, title, subtitle, showSwitch = false}: IMainScreenListView) => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
@@ -20,6 +21,7 @@ const MainScreenListView = ({children, title, subtitle}: IMainScreenListView) =>
           <Text style={styles.subtitle}>{subtitle}</Text>
         </View>
       </View>
+      {showSwitch && <Switch style={{transform: [{scaleX: 0.8}, {scaleY: 0.8}]}} />}
     </View>
   )
 }
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 16
+    paddingVertical: 20
   },
   innerContainer: {
     flexDirection: 'row',
@@ -51,7 +53,8 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 13,
     fontWeight: 'regular',
-    color: Colors.light.subTitle
+    color: Colors.light.subTitle,
+    opacity: 0.4
   }
 });
 

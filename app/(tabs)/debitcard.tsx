@@ -5,6 +5,11 @@ import { Colors } from '@/constants/Colors';
 import AspireLogo from '@/assets/icons/AspireLogo';
 import { ScrollView } from 'react-native';
 import MainScreenListView from '@/components/MainScreenListView';
+import TopUpAccountIcon from '@/assets/icons/TopUpAccountIcon';
+import SpendingLimitIcon from '@/assets/icons/SpendingLimitIcon';
+import FreezeCardIcon from '@/assets/icons/FreezeCardIcon';
+import DeactivatedCardsIcon from '@/assets/icons/DeactivatedCardsIcon';
+import NewCardIcon from '@/assets/icons/NewCardIcon';
 
 const DebitCard = () => {
   return (
@@ -21,10 +26,23 @@ const DebitCard = () => {
         </View>
         <Text style={styles.balance}>100.00</Text>
       </View>
-      <ScrollView style={{height: '100%', backgroundColor: Colors.light.white, marginTop: 92,borderRadius: 24}}>
-        <MainScreenListView title="Available Balance" subtitle="100.00">
-          <AspireLogo color={Colors.light.tint} />
+      <ScrollView style={{height: '100%', backgroundColor: Colors.light.white, marginTop: 92,borderRadius: 24, paddingTop: 48}}>
+        <MainScreenListView title="Top-up account" subtitle="Deposit money to your account to use with card">
+          <TopUpAccountIcon />
         </MainScreenListView>
+        <MainScreenListView title="Weekly spending limit" subtitle="You haven’t set any spending limit on card" showSwitch={true}>
+          <SpendingLimitIcon />
+        </MainScreenListView>
+        <MainScreenListView title="Freeze card" subtitle="Your debit card is currently active" showSwitch={true}>
+          <FreezeCardIcon />
+        </MainScreenListView>
+        <MainScreenListView title="Get a new card" subtitle="This deactivates your current debit card">
+          <NewCardIcon />
+        </MainScreenListView>
+        <MainScreenListView title="Deactivated cards" subtitle="Your previously deactivated cards">
+          <DeactivatedCardsIcon />
+        </MainScreenListView>
+        
       </ScrollView>
     </SafeAreaView>
   );
