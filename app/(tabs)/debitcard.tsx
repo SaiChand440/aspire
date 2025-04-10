@@ -3,6 +3,8 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
 import AspireLogo from '@/assets/icons/AspireLogo';
+import { ScrollView } from 'react-native';
+import MainScreenListView from '@/components/MainScreenListView';
 
 const DebitCard = () => {
   return (
@@ -19,6 +21,11 @@ const DebitCard = () => {
         </View>
         <Text style={styles.balance}>100.00</Text>
       </View>
+      <ScrollView style={{height: '100%', backgroundColor: Colors.light.white, marginTop: 92,borderRadius: 24}}>
+        <MainScreenListView title="Available Balance" subtitle="100.00">
+          <AspireLogo color={Colors.light.tint} />
+        </MainScreenListView>
+      </ScrollView>
     </SafeAreaView>
   );
 };
