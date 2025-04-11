@@ -1,5 +1,5 @@
-import { Text, StyleSheet, SafeAreaView, View, Dimensions, Pressable, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { Text, StyleSheet, SafeAreaView, View, Dimensions, Pressable, TextInput } from 'react-native';
+import React, { useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
 import AspireLogo from '@/assets/icons/AspireLogo';
@@ -17,12 +17,47 @@ import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { ICard } from '@/models';
 import { useSharedValue } from 'react-native-reanimated';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import Modal from 'react-native-modal';
+import Toast from 'react-native-toast-message';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const DebitCard = () => {
   const { data: cards, isFetching, isError, refetch } = useGetCardsQuery();
   const [currentIndex, setCurrentIndex] = useState(0);
   const progress = useSharedValue<number>(0);
   const [addNewCard, { isLoading: isAddingNewCard, isError: isAddingNewCardError }] = useAddNewCardMutation();
+  const inputRef = useRef<TextInput>(null);
+  const [cardName, setCardName] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const {top: SCREEN_TOP} = useSafeAreaInsets();
+
+  const handleAddNewCard = () => {
+    setIsModalVisible(true);
+    inputRef.current?.focus();
+  }
+
+  const onPressAddCard = async () => {
+    setIsModalVisible(false);
+    if (cardName.length === 0) {
+      Toast.show({
+        text1: 'Please enter a valid name',
+        type: 'error'
+      });
+      return;
+    }
+    const nameParts = cardName.split(' ');
+    if (nameParts.length < 2) {
+      Toast.show({
+        text1: 'Please enter both first and last name',
+        type: 'error'
+      });
+      return;
+    }
+    await addNewCard({ name: cardName })
+    refetch()
+    setCardName('');
+  }
 
   if (isFetching || isAddingNewCard) {
     return (
@@ -59,14 +94,11 @@ const DebitCard = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.contentContainer}>
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-        <Text style={styles.title}>{cards?.[currentIndex]?.cardType}</Text>
-        <Pressable onPress={async () => {
-          await addNewCard({ name: 'Dan Pablo' })
-          refetch()
-        }}>
-          <IconSymbol name='plus.circle.fill' size={20} color={Colors.light.white} />
-        </Pressable>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{cards?.[currentIndex]?.cardType}</Text>
+          <Pressable onPress={handleAddNewCard}>
+            <IconSymbol name='plus.circle.fill' size={20} color={Colors.light.white} />
+          </Pressable>
         </View>
         <AspireLogo color={Colors.light.tint} />
       </View>
@@ -116,6 +148,23 @@ const DebitCard = () => {
         </MainScreenListView>
         <View style={styles.bottomSpacing}></View>
       </ScrollView>
+      <Modal isVisible={isModalVisible} hasBackdrop={true} backdropOpacity={0.8} backdropColor={'#000'} onBackdropPress={() => setIsModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <TextInput 
+            value={cardName} 
+            onChangeText={setCardName} 
+            ref={inputRef} 
+            placeholder='Enter your name' 
+            style={styles.modalInput} 
+          />
+          <Pressable onPress={onPressAddCard} style={styles.modalButton}>
+            <Text style={styles.modalButtonText}>Add Card</Text>
+          </Pressable>
+        </View>
+      </Modal>
+      <Toast 
+        topOffset={SCREEN_TOP + 8}
+      />
     </SafeAreaView>
   );
 };
@@ -133,6 +182,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 32
+  },
+  titleContainer: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 8
   },
   title: {
     color: Colors.light.white,
@@ -262,7 +316,37 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.blueTint,
     alignItems: 'center',
-  }
+  },
+  modalContainer: {
+    backgroundColor: Colors.light.tint,
+    borderRadius: 16,
+    width: 300,
+    height: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  modalInput: {
+    backgroundColor: 'white',
+    width: '90%',
+    height: 40,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+  },
+  modalButton: {
+    backgroundColor: Colors.light.blueTint,
+    width: '90%',
+    height: 40,
+    borderRadius: 10,
+    marginTop: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonText: {
+    color: Colors.light.white,
+    fontWeight: 'medium',
+    fontSize: 16,
+  },
 });
 
 export default DebitCard;
