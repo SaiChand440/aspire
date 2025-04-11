@@ -1,4 +1,4 @@
-import { Text, StyleSheet, SafeAreaView, View } from 'react-native';
+import { Text, StyleSheet, SafeAreaView, View, Dimensions } from 'react-native';
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
@@ -10,6 +10,8 @@ import SpendingLimitIcon from '@/assets/icons/SpendingLimitIcon';
 import FreezeCardIcon from '@/assets/icons/FreezeCardIcon';
 import DeactivatedCardsIcon from '@/assets/icons/DeactivatedCardsIcon';
 import NewCardIcon from '@/assets/icons/NewCardIcon';
+import AspireLogoWithText from '@/assets/icons/AspireLogoWithText';
+import VisaLogo from '@/assets/icons/VisaLogo';
 
 const DebitCard = () => {
   return (
@@ -26,11 +28,25 @@ const DebitCard = () => {
         </View>
         <Text style={styles.balance}>100.00</Text>
       </View>
-      <ScrollView style={{height: '100%', backgroundColor: Colors.light.white, marginTop: 92,borderRadius: 24, paddingTop: 48}}>
+        <View style={styles.cardContainer}>
+          <View style={styles.logoContainer}>
+            <AspireLogoWithText />
+          </View>
+          <Text style={styles.cardName}>Mark Henry</Text>
+          <Text style={styles.cardNumber}>1234     5678      9012     3456</Text>
+          <View style={styles.cardDetailsContainer}>
+            <Text style={styles.cardDetail}>Thru: 12/20</Text>
+            <Text style={styles.cardDetailCvv}>CVV: 456</Text>
+          </View>
+          <View style={styles.visaLogoContainer}>
+          <VisaLogo />
+          </View>
+        </View>
+      <ScrollView style={styles.scrollView}>
         <MainScreenListView title="Top-up account" subtitle="Deposit money to your account to use with card">
           <TopUpAccountIcon />
         </MainScreenListView>
-        <MainScreenListView title="Weekly spending limit" subtitle="You haven’t set any spending limit on card" showSwitch={true}>
+        <MainScreenListView title="Weekly spending limit" subtitle="You haven't set any spending limit on card" showSwitch={true}>
           <SpendingLimitIcon />
         </MainScreenListView>
         <MainScreenListView title="Freeze card" subtitle="Your debit card is currently active" showSwitch={true}>
@@ -42,7 +58,7 @@ const DebitCard = () => {
         <MainScreenListView title="Deactivated cards" subtitle="Your previously deactivated cards">
           <DeactivatedCardsIcon />
         </MainScreenListView>
-        
+        <View style={styles.bottomSpacing}></View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -52,6 +68,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.light.blueTint,
     flex: 1,
+    zIndex: 1
   },
   contentContainer: {
     width: '100%',
@@ -100,7 +117,70 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
+  cardContainer: {
+    marginHorizontal: 16,
+    height: 220,
+    width: Dimensions.get('window').width - 32,
+    backgroundColor: Colors.light.tint,
+    borderRadius: 16,
+    top: 250,
+    zIndex: 1000,
+    position: 'absolute'
+  },
+  logoContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    marginTop: 24,
+    marginRight: 24
+  },
+  cardName: {
+    color: Colors.light.white,
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 24,
+    marginHorizontal: 16
+  },
+  cardNumber: {
+    color: Colors.light.white,
+    fontSize: 14,
+    fontWeight: 'condensedBold',
+    marginTop: 24,
+    marginHorizontal: 16
+  },
+  cardDetailsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginTop: 16
+  },
+  cardDetail: {
+    color: Colors.light.white,
+    fontSize: 14,
+    fontWeight: 'condensedBold',
+    marginLeft: 16
+  },
+  cardDetailCvv: {
+    color: Colors.light.white,
+    fontSize: 14,
+    fontWeight: 'condensedBold',
+    marginLeft: 32
+  },
+  visaLogoContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    marginTop: 4,
+    marginRight: 24
+  },
+  scrollView: {
+    height: '100%',
+    backgroundColor: Colors.light.white,
+    marginTop: 92,
+    borderRadius: 24,
+    paddingTop: 188
+  },
+  bottomSpacing: {
+    height: 42
+  }
 });
-
 
 export default DebitCard;
