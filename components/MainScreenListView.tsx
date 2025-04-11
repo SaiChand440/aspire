@@ -7,9 +7,18 @@ interface IMainScreenListView {
   title: string;
   subtitle: string;
   showSwitch?: boolean;
+  switchValue?: boolean;
+  onSwitchChange?: (value: boolean) => void;
 }
 
-const MainScreenListView = ({children, title, subtitle, showSwitch = false}: IMainScreenListView) => {
+const MainScreenListView = ({
+  children, 
+  title, 
+  subtitle, 
+  showSwitch = false,
+  switchValue = false,
+  onSwitchChange
+}: IMainScreenListView) => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
@@ -21,7 +30,14 @@ const MainScreenListView = ({children, title, subtitle, showSwitch = false}: IMa
           <Text style={styles.subtitle}>{subtitle}</Text>
         </View>
       </View>
-      {showSwitch && <Switch style={{transform: [{scaleX: 0.8}, {scaleY: 0.8}]}} />}
+      {showSwitch && (
+        <Switch 
+          style={{transform: [{scaleX: 0.8}, {scaleY: 0.8}]}} 
+          value={switchValue}
+          onValueChange={onSwitchChange}
+          trackColor={{ false: Colors.light.subTitle, true: Colors.light.tint }}
+        />
+      )}
     </View>
   )
 }

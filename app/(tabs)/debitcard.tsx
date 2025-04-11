@@ -12,7 +12,7 @@ import DeactivatedCardsIcon from '@/assets/icons/DeactivatedCardsIcon';
 import NewCardIcon from '@/assets/icons/NewCardIcon';
 import AspireLogoWithText from '@/assets/icons/AspireLogoWithText';
 import VisaLogo from '@/assets/icons/VisaLogo';
-import { useAddNewCardMutation, useGetCardsQuery } from '@/redux-store/cards/CardsSlice';
+import { useAddNewCardMutation, useGetCardsQuery, useFreezeCardMutation } from '@/redux-store/cards/CardsSlice';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { ICard } from '@/models';
 import { useSharedValue } from 'react-native-reanimated';
@@ -27,6 +27,7 @@ const DebitCard = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const progress = useSharedValue<number>(0);
   const [addNewCard, { isLoading: isAddingNewCard, isError: isAddingNewCardError }] = useAddNewCardMutation();
+  const [freezeCard] = useFreezeCardMutation();
   const inputRef = useRef<TextInput>(null);
   const [cardName, setCardName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -59,6 +60,12 @@ const DebitCard = () => {
     setCardName('');
   }
 
+  const handleFreezeCard = async (freeze: boolean) => {
+    if (!cards?.[currentIndex]) return;
+    await freezeCard({ cardId: cards[currentIndex].id, freeze });
+    refetch();
+  }
+
   if (isFetching || isAddingNewCard) {
     return (
       <View style={styles.loadingContainer}>
@@ -73,7 +80,7 @@ const DebitCard = () => {
 
   const renderCard = ({ item, index }: { item: ICard, index: number }) => {
     return (
-      <View style={styles.cardContainer}>
+      <View style={[styles.cardContainer, item.cardFreezed && styles.cardContainerFreezed]}>
         <View style={styles.logoContainer}>
           <AspireLogoWithText />
         </View>
@@ -137,7 +144,13 @@ const DebitCard = () => {
         <MainScreenListView title="Weekly spending limit" subtitle="You haven't set any spending limit on card" showSwitch={true}>
           <SpendingLimitIcon />
         </MainScreenListView>
-        <MainScreenListView title="Freeze card" subtitle="Your debit card is currently active" showSwitch={true}>
+        <MainScreenListView 
+          title={ cards[currentIndex]?.cardFreezed ? "Unfreeze card" : "Freeze card" }
+          subtitle={cards[currentIndex]?.cardFreezed ? "Your debit card is currently frozen" : "Your debit card is currently active"} 
+          showSwitch={true}
+          switchValue={cards[currentIndex]?.cardFreezed}
+          onSwitchChange={handleFreezeCard}
+        >
           <FreezeCardIcon />
         </MainScreenListView>
         <MainScreenListView title="Get a new card" subtitle="This deactivates your current debit card">
@@ -234,6 +247,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.tint,
     borderRadius: 16,
     zIndex: 1000,
+  },
+  cardContainerFreezed: {
+    backgroundColor: '#CCCCCC',
   },
   logoContainer: {
     alignItems: 'flex-end',

@@ -16,12 +16,13 @@ export const cardsApiSlice = createApi({
             queryFn: async (card) => {
                 const cardNumber = Math.floor(Math.random() * 10000000000000000).toString().padStart(16, '0');
                 const cardCvv = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                const cardBalance = Math.floor(Math.random() * 1000)
                 const newCard = {
                     id: getDummyCards().length + 1,
                     name: card.name,
                     cardNumber: cardNumber,
                     cardType: 'Debit Card',
-                    cardBalance: 1000,
+                    cardBalance: cardBalance,
                     cardExpiry: '12/30',
                     cardCVV: cardCvv,
                     cardStatus: 'Active',
@@ -32,8 +33,21 @@ export const cardsApiSlice = createApi({
                 storeCardData([...existingCards ?? [], newCard]);
                 return { data: [...existingCards ?? [], newCard] }
             }
+        }),
+        freezeCard: builder.mutation<ICard[], { cardId: number, freeze: boolean }>({
+            queryFn: async ({ cardId, freeze }) => {
+                const existingCards = await getCardData();
+                if (!existingCards) return { data: [] };
+                
+                const updatedCards = existingCards.map(card => 
+                    card.id === cardId ? { ...card, cardFreezed: freeze } : card
+                );
+                
+                await storeCardData(updatedCards);
+                return { data: updatedCards };
+            }
         })
     })
 })
 
-export const { useGetCardsQuery, useAddNewCardMutation } = cardsApiSlice;
+export const { useGetCardsQuery, useAddNewCardMutation, useFreezeCardMutation } = cardsApiSlice;
