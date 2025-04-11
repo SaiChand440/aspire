@@ -1,4 +1,4 @@
-import { Text, StyleSheet, SafeAreaView, View, Dimensions } from 'react-native';
+import { Text, StyleSheet, SafeAreaView, View, Dimensions, Pressable, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
@@ -16,20 +16,13 @@ import { useAddNewCardMutation, useGetCardsQuery } from '@/redux-store/cards/Car
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { ICard } from '@/models';
 import { useSharedValue } from 'react-native-reanimated';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 
 const DebitCard = () => {
-  const { data: cards, isFetching, isError } = useGetCardsQuery();
+  const { data: cards, isFetching, isError, refetch } = useGetCardsQuery();
   const [currentIndex, setCurrentIndex] = useState(0);
   const progress = useSharedValue<number>(0);
-  const [addNewCard, { isLoading: isAddingNewCard, isError: isAddingNewCardError, isSuccess: isAddingNewCardSuccess }] = useAddNewCardMutation();
-
-  useEffect(() => {
-    const addNewCardAsync = async () => {
-      const result = await addNewCard({ name: 'Dan Pablo'})
-      console.log("Resulttttuu",result);
-    }
-    addNewCardAsync()
-  }, []);
+  const [addNewCard, { isLoading: isAddingNewCard, isError: isAddingNewCardError }] = useAddNewCardMutation();
 
   if (isFetching || isAddingNewCard) {
     return (
@@ -66,7 +59,15 @@ const DebitCard = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.contentContainer}>
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
         <Text style={styles.title}>{cards?.[currentIndex]?.cardType}</Text>
+        <Pressable onPress={async () => {
+          await addNewCard({ name: 'Dan Pablo' })
+          refetch()
+        }}>
+          <IconSymbol name='plus.circle.fill' size={20} color={Colors.light.white} />
+        </Pressable>
+        </View>
         <AspireLogo color={Colors.light.tint} />
       </View>
       <Text style={styles.availableBalance}>Available Balance</Text>
@@ -91,7 +92,7 @@ const DebitCard = () => {
       {cards && cards?.length > 1 && <Pagination.Basic<ICard>
         progress={progress}
         data={cards}
-        size={10}
+        size={8}
         dotStyle={styles.paginationDot}
         activeDotStyle={styles.paginationActiveDot}
         containerStyle={styles.paginationContainer}
