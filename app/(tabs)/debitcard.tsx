@@ -1,5 +1,5 @@
 import { Text, StyleSheet, SafeAreaView, View, Dimensions } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
 import AspireLogo from '@/assets/icons/AspireLogo';
@@ -12,13 +12,41 @@ import DeactivatedCardsIcon from '@/assets/icons/DeactivatedCardsIcon';
 import NewCardIcon from '@/assets/icons/NewCardIcon';
 import AspireLogoWithText from '@/assets/icons/AspireLogoWithText';
 import VisaLogo from '@/assets/icons/VisaLogo';
+import { useAddNewCardMutation, useGetCardsQuery } from '@/redux-store/cards/CardsSlice';
 
 const DebitCard = () => {
+  const { data: cards, isFetching, isError } = useGetCardsQuery();
+
+  const currentCard = cards?.[0]!!;
+
+  const [addNewCard, { isLoading: isAddingNewCard, isError: isAddingNewCardError, isSuccess: isAddingNewCardSuccess }] = useAddNewCardMutation();
+
+  useEffect(() => {
+    const addNewCardAsync = async () => {
+      const result = await addNewCard({ name: 'Dan Pablo'})
+      console.log("Resulttttuu",result);
+    }
+    addNewCardAsync()
+  }, []);
+
+
+  if (isFetching || isAddingNewCard) {
+    return (
+      <View style={{flex: 1, backgroundColor: Colors.light.blueTint, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{fontSize: 24, fontWeight: 'bold' }}>Loading...</Text>
+      </View>
+    )
+  }
+
+  if (isError || isAddingNewCardError) {
+    return <Text style={{flex: 1, alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 'bold' }}>Error fetching cards</Text>;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>Debit Card</Text>
+        <Text style={styles.title}>{currentCard.cardType}</Text>
         <AspireLogo color={Colors.light.tint} />
       </View>
       <Text style={styles.availableBalance}>Available Balance</Text>
@@ -26,17 +54,17 @@ const DebitCard = () => {
         <View style={styles.currencyContainer}>
           <Text style={styles.currency}>S$</Text>
         </View>
-        <Text style={styles.balance}>100.00</Text>
+        <Text style={styles.balance}>{currentCard.cardBalance}</Text>
       </View>
         <View style={styles.cardContainer}>
           <View style={styles.logoContainer}>
             <AspireLogoWithText />
           </View>
-          <Text style={styles.cardName}>Mark Henry</Text>
-          <Text style={styles.cardNumber}>1234     5678      9012     3456</Text>
+          <Text style={styles.cardName}>{currentCard.name}</Text>
+          <Text style={styles.cardNumber}>{currentCard.cardNumber.replace(/(\d{4})/g, '$1    ').trim()}</Text>
           <View style={styles.cardDetailsContainer}>
-            <Text style={styles.cardDetail}>Thru: 12/20</Text>
-            <Text style={styles.cardDetailCvv}>CVV: 456</Text>
+            <Text style={styles.cardDetail}>Thru: {currentCard.cardExpiry}</Text>
+            <Text style={styles.cardDetailCvv}>CVV: {currentCard.cardCVV}</Text>
           </View>
           <View style={styles.visaLogoContainer}>
           <VisaLogo />
