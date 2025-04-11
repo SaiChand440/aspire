@@ -1,4 +1,4 @@
-import { ICard, ICardPostBody } from "@/sample-data/getCards";
+import { CardIssuer, ICard, ICardPostBody } from "@/models";
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { getCards as getDummyCards } from '@/sample-data/getCards'
 
@@ -30,7 +30,8 @@ export const cardsApiSlice = createApi({
                     cardExpiry: '12/30',
                     cardCVV: cardCvv,
                     cardStatus: 'Active',
-                    cardIssuer: 'visa'
+                    cardIssuer: CardIssuer.VISA,
+                    cardCurrency: 'S$'
                 }
                 return { data: [...getDummyCards(), newCard] }
             }

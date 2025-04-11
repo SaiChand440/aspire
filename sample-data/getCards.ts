@@ -1,18 +1,5 @@
-export interface ICard {
-    id: number;
-    name: string;
-    cardNumber: string;
-    cardType: string;
-    cardBalance: number;
-    cardExpiry: string;
-    cardCVV: string;
-    cardStatus: string;
-    cardIssuer: string;
-}
+import { CardIssuer, ICard } from "@/models"
 
-export interface ICardPostBody {
-    name: string;
-}
 
 export const getCards = (): ICard[] => {
     return [
@@ -21,11 +8,13 @@ export const getCards = (): ICard[] => {
             "name": "John Dasoe",
             "cardNumber": "1234567890123456",
             "cardType": "Debit Card",
+            "cardCurrency": "S$",
             "cardBalance": 1000,
-            "cardExpiry": "12/2024",
+            "cardExpiry": "12/29",
             "cardCVV": "123",
             "cardStatus": "Active",
-            "cardIssuer": "visa"
+            "cardIssuer": CardIssuer.VISA,
+            "cardFreezed": false
         }
     ]
 }

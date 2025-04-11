@@ -1,5 +1,5 @@
 import { Text, StyleSheet, SafeAreaView, View, Dimensions } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
 import AspireLogo from '@/assets/icons/AspireLogo';
@@ -13,12 +13,14 @@ import NewCardIcon from '@/assets/icons/NewCardIcon';
 import AspireLogoWithText from '@/assets/icons/AspireLogoWithText';
 import VisaLogo from '@/assets/icons/VisaLogo';
 import { useAddNewCardMutation, useGetCardsQuery } from '@/redux-store/cards/CardsSlice';
+import Carousel, { Pagination } from 'react-native-reanimated-carousel';
+import { ICard } from '@/models';
+import { useSharedValue } from 'react-native-reanimated';
 
 const DebitCard = () => {
   const { data: cards, isFetching, isError } = useGetCardsQuery();
-
-  const currentCard = cards?.[0]!!;
-
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const progress = useSharedValue<number>(0);
   const [addNewCard, { isLoading: isAddingNewCard, isError: isAddingNewCardError, isSuccess: isAddingNewCardSuccess }] = useAddNewCardMutation();
 
   useEffect(() => {
@@ -29,24 +31,42 @@ const DebitCard = () => {
     addNewCardAsync()
   }, []);
 
-
   if (isFetching || isAddingNewCard) {
     return (
-      <View style={{flex: 1, backgroundColor: Colors.light.blueTint, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{fontSize: 24, fontWeight: 'bold' }}>Loading...</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.title}>Loading...</Text>
       </View>
     )
   }
 
-  if (isError || isAddingNewCardError) {
-    return <Text style={{flex: 1, alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 'bold' }}>Error fetching cards</Text>;
+  if (isError || isAddingNewCardError || !cards) {
+    return <Text style={styles.title}>Error fetching cards</Text>;
   }
+
+  const renderCard = ({ item, index }: { item: ICard, index: number }) => {
+    return (
+      <View style={styles.cardContainer}>
+        <View style={styles.logoContainer}>
+          <AspireLogoWithText />
+        </View>
+        <Text style={styles.cardName}>{item.name}</Text>
+        <Text style={styles.cardNumber}>{item.cardNumber.replace(/(\d{4})/g, '$1    ').trim()}</Text>
+        <View style={styles.cardDetailsContainer}>
+          <Text style={styles.cardDetail}>Thru: {item.cardExpiry}</Text>
+          <Text style={styles.cardDetailCvv}>CVV: {item.cardCVV}</Text>
+        </View>
+        <View style={styles.visaLogoContainer}>
+          <VisaLogo />
+        </View>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>{currentCard.cardType}</Text>
+        <Text style={styles.title}>{cards?.[currentIndex]?.cardType}</Text>
         <AspireLogo color={Colors.light.tint} />
       </View>
       <Text style={styles.availableBalance}>Available Balance</Text>
@@ -54,22 +74,29 @@ const DebitCard = () => {
         <View style={styles.currencyContainer}>
           <Text style={styles.currency}>S$</Text>
         </View>
-        <Text style={styles.balance}>{currentCard.cardBalance}</Text>
+        <Text style={styles.balance}>{cards?.[currentIndex]?.cardBalance}</Text>
       </View>
-        <View style={styles.cardContainer}>
-          <View style={styles.logoContainer}>
-            <AspireLogoWithText />
-          </View>
-          <Text style={styles.cardName}>{currentCard.name}</Text>
-          <Text style={styles.cardNumber}>{currentCard.cardNumber.replace(/(\d{4})/g, '$1    ').trim()}</Text>
-          <View style={styles.cardDetailsContainer}>
-            <Text style={styles.cardDetail}>Thru: {currentCard.cardExpiry}</Text>
-            <Text style={styles.cardDetailCvv}>CVV: {currentCard.cardCVV}</Text>
-          </View>
-          <View style={styles.visaLogoContainer}>
-          <VisaLogo />
-          </View>
-        </View>
+      <Carousel
+        loop={false}
+        width={Dimensions.get('window').width}
+        height={220}
+        autoPlay={false}
+        data={cards}
+        scrollAnimationDuration={1000}
+        onSnapToItem={(index) => setCurrentIndex(index)}
+        renderItem={renderCard}
+        style={styles.carousel}
+        onProgressChange={progress}
+      />
+      {cards && cards?.length > 1 && <Pagination.Basic<ICard>
+        progress={progress}
+        data={cards}
+        size={10}
+        dotStyle={styles.paginationDot}
+        activeDotStyle={styles.paginationActiveDot}
+        containerStyle={styles.paginationContainer}
+        horizontal
+      />}
       <ScrollView style={styles.scrollView}>
         <MainScreenListView title="Top-up account" subtitle="Deposit money to your account to use with card">
           <TopUpAccountIcon />
@@ -151,9 +178,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width - 32,
     backgroundColor: Colors.light.tint,
     borderRadius: 16,
-    top: 250,
     zIndex: 1000,
-    position: 'absolute'
   },
   logoContainer: {
     alignItems: 'flex-end',
@@ -199,6 +224,29 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginRight: 24
   },
+  carousel: {
+    position: 'absolute',
+    top: 28,
+    zIndex: 1000,
+  },
+  paginationContainer: {
+    position: 'absolute',
+    top: 430,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    zIndex: 10000,
+    marginBottom: 10,
+  },
+  paginationDot: {
+    borderRadius: 10,
+    backgroundColor: Colors.light.blueTint,
+  },
+  paginationActiveDot: {
+    borderRadius: 10,
+    overflow: "hidden",
+    backgroundColor: Colors.light.white,
+  },
   scrollView: {
     height: '100%',
     backgroundColor: Colors.light.white,
@@ -208,6 +256,11 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 42
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: Colors.light.blueTint,
+    alignItems: 'center',
   }
 });
 
