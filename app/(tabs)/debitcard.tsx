@@ -172,6 +172,7 @@ const DebitCard = () => {
       </GestureDetector>
       <Modal isVisible={isModalVisible} hasBackdrop={true} backdropOpacity={0.8} backdropColor={'#000'} onBackdropPress={() => setIsModalVisible(false)}>
         <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Add Card</Text>
           <TextInput 
             value={cardName} 
             onChangeText={setCardName} 
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: Colors.light.white,
     borderRadius: 16,
     width: 300,
     height: 300,
@@ -352,11 +353,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   modalInput: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.light.white,
     width: '90%',
     height: 40,
     borderRadius: 10,
     paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: Colors.light.tint,
   },
   modalButton: {
     backgroundColor: Colors.light.blueTint,
@@ -366,11 +369,24 @@ const styles = StyleSheet.create({
     marginTop: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: Colors.light.blueTint,
   },
   modalButtonText: {
     color: Colors.light.white,
     fontWeight: 'medium',
     fontSize: 16,
+  },
+  modalTitle: {
+    color: Colors.light.blueTint,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 24,
   },
   cardNumberVisibilityContainer: {
     flexDirection: 'row',
