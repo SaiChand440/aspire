@@ -31,7 +31,7 @@ export default function RootLayout() {
   useEffect(() => {
     const fetchCards = async () => {
       const cards = await getCardData();
-      if(cards && cards.length === 0) {
+      if(cards === null) {
         storeCardData(getCards());
       }
     }

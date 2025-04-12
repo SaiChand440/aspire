@@ -1,4 +1,4 @@
-import { Text, StyleSheet, SafeAreaView, View, Dimensions, Pressable, TextInput } from 'react-native';
+import { Text, StyleSheet, SafeAreaView, View, Dimensions, Pressable, TextInput, Platform } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
@@ -21,6 +21,7 @@ import HideDetailsIcon from '@/assets/icons/HideDetailsIcon';
 import ShowDetailsIcon from '@/assets/icons/ShowDetailsIcon';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import CardView from '@/components/CardView';
+import { MaterialIcons } from '@expo/vector-icons';
 
 
 const DebitCard = () => {
@@ -53,7 +54,6 @@ const DebitCard = () => {
   }
 
   const onPressAddCard = async () => {
-    setIsModalVisible(false);
     if (cardName.length === 0) {
       Toast.show({
         text1: 'Please enter a valid name',
@@ -69,6 +69,7 @@ const DebitCard = () => {
       });
       return;
     }
+    setIsModalVisible(false);
     await addNewCard({ name: cardName })
     refetch()
     setCardName('');
@@ -84,15 +85,7 @@ const DebitCard = () => {
     setCardNumberVisible(!cardNumberVisible);
   }
 
-  if (isFetching || isAddingNewCard) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.title}>Loading...</Text>
-      </View>
-    )
-  }
-
-  if (isError || isAddingNewCardError || !cards) {
+  if (isError || isAddingNewCardError) {
     return <Text style={styles.title}>Error fetching cards</Text>;
   }
 
@@ -101,9 +94,17 @@ const DebitCard = () => {
       <StatusBar style="light" />
       <View style={styles.contentContainer}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>{cards?.[currentIndex]?.cardType}</Text>
+          <Text style={styles.title}>
+            {isFetching ? 
+              <View style={styles.loadingBox} /> : 
+              cards?.[currentIndex]?.cardType
+            }
+          </Text>
           <Pressable onPress={handleAddNewCard}>
-            <IconSymbol name='plus.circle.fill' size={20} color={Colors.light.white} />
+            {Platform.OS === 'ios' ?
+              <IconSymbol name='plus.circle.fill' size={20} color={Colors.light.white} /> :
+              <MaterialIcons name='add-circle' size={20} color={Colors.light.white} />
+            }
           </Pressable>
         </View>
         <AspireLogo color={Colors.light.tint} />
@@ -113,7 +114,12 @@ const DebitCard = () => {
         <View style={styles.currencyContainer}>
           <Text style={styles.currency}>S$</Text>
         </View>
-        <Text style={styles.balance}>{cards?.[currentIndex]?.cardBalance}</Text>
+        <Text style={styles.balance}>
+          {isFetching ? 
+            <View style={styles.loadingBox} /> :
+            cards?.[currentIndex]?.cardBalance
+          }
+        </Text>
       </View>
       <GestureDetector gesture={gesture}>
         <Animated.View style={[animatedStyle]}>
@@ -126,7 +132,7 @@ const DebitCard = () => {
             width={Dimensions.get('window').width}
             height={220}
             autoPlay={false}
-            data={cards}
+            data={cards || []}
             scrollAnimationDuration={1000}
             onSnapToItem={(index) => setCurrentIndex(index)}
             renderItem={({ item }) => (
@@ -152,10 +158,10 @@ const DebitCard = () => {
               <SpendingLimitIcon />
             </MainScreenListView>
             <MainScreenListView 
-              title={ cards[currentIndex]?.cardFreezed ? "Unfreeze card" : "Freeze card" }
-              subtitle={cards[currentIndex]?.cardFreezed ? "Your debit card is currently frozen" : "Your debit card is currently active"} 
+              title={isFetching ? "Loading..." : cards?.[currentIndex]?.cardFreezed ? "Unfreeze card" : "Freeze card"}
+              subtitle={isFetching ? "Loading..." : cards?.[currentIndex]?.cardFreezed ? "Your debit card is currently frozen" : "Your debit card is currently active"}
               showSwitch={true}
-              switchValue={cards[currentIndex]?.cardFreezed}
+              switchValue={isFetching ? false : cards?.[currentIndex]?.cardFreezed}
               onSwitchChange={handleFreezeCard}
             >
               <FreezeCardIcon />
@@ -170,7 +176,8 @@ const DebitCard = () => {
           </View>
         </Animated.View>
       </GestureDetector>
-      <Modal isVisible={isModalVisible} hasBackdrop={true} backdropOpacity={0.8} backdropColor={'#000'} onBackdropPress={() => setIsModalVisible(false)}>
+      <View>
+      <Modal style={{alignSelf: 'center', justifyContent: 'center', flex: 1, width: '100%', height: '100%'}} isVisible={isModalVisible} hasBackdrop={true} backdropOpacity={0.8} backdropColor={'#000'} onBackdropPress={() => setIsModalVisible(false)}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Add Card</Text>
           <TextInput 
@@ -184,10 +191,11 @@ const DebitCard = () => {
             <Text style={styles.modalButtonText}>Add Card</Text>
           </Pressable>
         </View>
-      </Modal>
-      <Toast 
+        <Toast 
         topOffset={SCREEN_TOP + 8}
       />
+      </Modal>
+      </View>
     </SafeAreaView>
   );
 };
@@ -333,15 +341,23 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.white,
     marginTop: 92,
     borderRadius: 24,
-    paddingTop: 188
+    paddingTop: 188,
+    zIndex: -1
   },
   bottomSpacing: {
     height: 42
   },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: Colors.light.blueTint,
-    alignItems: 'center',
+  loadingBox: {
+    width: 80,
+    height: 24,
+    backgroundColor: Colors.light.tint,
+    borderRadius: 4,
+  },
+  loadingCardBox: {
+    width: Dimensions.get('window').width,
+    height: 220,
+    backgroundColor: Colors.light.tint,
+    borderRadius: 16,
   },
   modalContainer: {
     backgroundColor: Colors.light.white,
