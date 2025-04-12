@@ -3,26 +3,24 @@ import React, { useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Colors } from '@/constants/Colors';
 import AspireLogo from '@/assets/icons/AspireLogo';
-import { ScrollView } from 'react-native';
 import MainScreenListView from '@/components/MainScreenListView';
 import TopUpAccountIcon from '@/assets/icons/TopUpAccountIcon';
 import SpendingLimitIcon from '@/assets/icons/SpendingLimitIcon';
 import FreezeCardIcon from '@/assets/icons/FreezeCardIcon';
 import DeactivatedCardsIcon from '@/assets/icons/DeactivatedCardsIcon';
 import NewCardIcon from '@/assets/icons/NewCardIcon';
-import AspireLogoWithText from '@/assets/icons/AspireLogoWithText';
-import VisaLogo from '@/assets/icons/VisaLogo';
 import { useAddNewCardMutation, useGetCardsQuery, useFreezeCardMutation } from '@/redux-store/cards/CardsSlice';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { ICard } from '@/models';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Modal from 'react-native-modal';
 import Toast from 'react-native-toast-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HideDetailsIcon from '@/assets/icons/HideDetailsIcon';
 import ShowDetailsIcon from '@/assets/icons/ShowDetailsIcon';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import CardView from '@/components/CardView';
 
 
 const DebitCard = () => {
@@ -99,29 +97,6 @@ const DebitCard = () => {
     return <Text style={styles.title}>Error fetching cards</Text>;
   }
 
-  const renderCard = ({ item, index }: { item: ICard, index: number }) => {
-    return (
-      <View style={[styles.cardContainer, item.cardFreezed && styles.cardContainerFreezed]}>
-        <View style={styles.logoContainer}>
-          <AspireLogoWithText />
-        </View>
-        <Text style={styles.cardName}>{item.name}</Text>
-        <Text style={styles.cardNumber}>
-          {cardNumberVisible 
-            ? item.cardNumber.replace(/(\d{4})/g, '$1    ').trim()
-            : `XXXX    XXXX    XXXX    ${item.cardNumber.slice(-4)}`}
-        </Text>
-        <View style={styles.cardDetailsContainer}>
-          <Text style={styles.cardDetail}>Thru: {item.cardExpiry}</Text>
-          <Text style={styles.cardDetailCvv}>CVV: {cardNumberVisible ? item.cardCVV : 'XXX'}</Text>
-        </View>
-        <View style={styles.visaLogoContainer}>
-          <VisaLogo />
-        </View>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
@@ -155,7 +130,9 @@ const DebitCard = () => {
             data={cards}
             scrollAnimationDuration={1000}
             onSnapToItem={(index) => setCurrentIndex(index)}
-            renderItem={renderCard}
+            renderItem={({ item }) => (
+              <CardView item={item} cardNumberVisible={cardNumberVisible} />
+            )}
             style={styles.carousel}
             onProgressChange={progress}
           />
@@ -335,7 +312,7 @@ const styles = StyleSheet.create({
   },
   paginationContainer: {
     position: 'absolute',
-    top: 430,
+    top: 230,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 5,
