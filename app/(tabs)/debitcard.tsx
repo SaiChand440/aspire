@@ -20,6 +20,8 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import Modal from 'react-native-modal';
 import Toast from 'react-native-toast-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import HideDetailsIcon from '@/assets/icons/HideDetailsIcon';
+import ShowDetailsIcon from '@/assets/icons/ShowDetailsIcon';
 
 
 const DebitCard = () => {
@@ -32,6 +34,7 @@ const DebitCard = () => {
   const [cardName, setCardName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const {top: SCREEN_TOP} = useSafeAreaInsets();
+  const [cardNumberVisible, setCardNumberVisible] = useState(true);
 
   const handleAddNewCard = () => {
     setIsModalVisible(true);
@@ -66,6 +69,10 @@ const DebitCard = () => {
     refetch();
   }
 
+  const toggleCardNumberVisibility = () => {
+    setCardNumberVisible(!cardNumberVisible);
+  }
+
   if (isFetching || isAddingNewCard) {
     return (
       <View style={styles.loadingContainer}>
@@ -85,10 +92,14 @@ const DebitCard = () => {
           <AspireLogoWithText />
         </View>
         <Text style={styles.cardName}>{item.name}</Text>
-        <Text style={styles.cardNumber}>{item.cardNumber.replace(/(\d{4})/g, '$1    ').trim()}</Text>
+        <Text style={styles.cardNumber}>
+          {cardNumberVisible 
+            ? item.cardNumber.replace(/(\d{4})/g, '$1    ').trim()
+            : `XXXX    XXXX    XXXX    ${item.cardNumber.slice(-4)}`}
+        </Text>
         <View style={styles.cardDetailsContainer}>
           <Text style={styles.cardDetail}>Thru: {item.cardExpiry}</Text>
-          <Text style={styles.cardDetailCvv}>CVV: {item.cardCVV}</Text>
+          <Text style={styles.cardDetailCvv}>CVV: {cardNumberVisible ? item.cardCVV : 'XXX'}</Text>
         </View>
         <View style={styles.visaLogoContainer}>
           <VisaLogo />
@@ -116,6 +127,10 @@ const DebitCard = () => {
         </View>
         <Text style={styles.balance}>{cards?.[currentIndex]?.cardBalance}</Text>
       </View>
+      <Pressable onPress={toggleCardNumberVisibility} style={styles.cardNumberVisibilityContainer}>
+        {cardNumberVisible ? <HideDetailsIcon /> : <ShowDetailsIcon />}
+        <Text style={styles.cardNumberVisibilityText}>{cardNumberVisible ? 'Hide Card Number' : 'Show Card Number'}</Text>
+      </Pressable>
       <Carousel
         loop={false}
         width={Dimensions.get('window').width}
@@ -363,6 +378,25 @@ const styles = StyleSheet.create({
     fontWeight: 'medium',
     fontSize: 16,
   },
+  cardNumberVisibilityContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-evenly',
+    marginHorizontal: 16,
+    backgroundColor: Colors.light.white,
+    width: 150,
+    height: 44,
+    position: 'absolute',
+    right: 0,
+    top: 205,
+    paddingTop: 8,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+  },
+  cardNumberVisibilityText: {
+    color: Colors.light.tint,
+    fontSize: 12,
+    fontWeight: 'bold',
+  }
 });
-
 export default DebitCard;

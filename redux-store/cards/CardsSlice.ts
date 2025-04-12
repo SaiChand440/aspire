@@ -17,8 +17,9 @@ export const cardsApiSlice = createApi({
                 const cardNumber = Math.floor(Math.random() * 10000000000000000).toString().padStart(16, '0');
                 const cardCvv = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
                 const cardBalance = Math.floor(Math.random() * 1000)
+                const existingCards = await getCardData();
                 const newCard = {
-                    id: getDummyCards().length + 1,
+                    id: (existingCards?.length ?? 0) + 1,
                     name: card.name,
                     cardNumber: cardNumber,
                     cardType: 'Debit Card',
@@ -29,7 +30,6 @@ export const cardsApiSlice = createApi({
                     cardIssuer: CardIssuer.VISA,
                     cardCurrency: 'S$'
                 }
-                const existingCards = await getCardData();
                 storeCardData([...existingCards ?? [], newCard]);
                 return { data: [...existingCards ?? [], newCard] }
             }
