@@ -1,6 +1,5 @@
 import { CardIssuer, ICard, ICardPostBody } from "@/models";
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getCards as getDummyCards } from '@/sample-data/getCards'
 import { getCardData, storeCardData } from "@/utils/storage";
 export const cardsApiSlice = createApi({
     reducerPath: 'cards',

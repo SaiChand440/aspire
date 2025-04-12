@@ -1,11 +1,8 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import ScreenRedirectView from '@/components/ScreenRedirectView';
 
 const Credit = () => {
   return (
-    <View>
-      <Text>Credit</Text>
-    </View>
+    <ScreenRedirectView />
   )
 }
 

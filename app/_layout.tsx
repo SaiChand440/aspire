@@ -9,7 +9,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Provider } from 'react-redux';
 import { store } from '@/redux-store';
-import { storeCardData } from '@/utils/storage';
+import { getCardData, storeCardData } from '@/utils/storage';
 import { getCards } from '@/sample-data/getCards';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -29,7 +29,13 @@ export default function RootLayout() {
   }, [loaded]);
 
   useEffect(() => {
-    storeCardData(getCards());
+    const fetchCards = async () => {
+      const cards = await getCardData();
+      if(cards && cards.length === 0) {
+        storeCardData(getCards());
+      }
+    }
+    fetchCards();
   }, []);
 
   if (!loaded) {
