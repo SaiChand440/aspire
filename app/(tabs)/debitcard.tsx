@@ -44,7 +44,6 @@ const DebitCard = () => {
   
   const gesture = Gesture.Pan()
   .onUpdate((e) => {
-      console.log('translateY.value', translateY.value);
       translateY.value = e.translationY;
     })
 
