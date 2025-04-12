@@ -15,13 +15,14 @@ import VisaLogo from '@/assets/icons/VisaLogo';
 import { useAddNewCardMutation, useGetCardsQuery, useFreezeCardMutation } from '@/redux-store/cards/CardsSlice';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { ICard } from '@/models';
-import { useSharedValue } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Modal from 'react-native-modal';
 import Toast from 'react-native-toast-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HideDetailsIcon from '@/assets/icons/HideDetailsIcon';
 import ShowDetailsIcon from '@/assets/icons/ShowDetailsIcon';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 const DebitCard = () => {
@@ -35,6 +36,19 @@ const DebitCard = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const {top: SCREEN_TOP} = useSafeAreaInsets();
   const [cardNumberVisible, setCardNumberVisible] = useState(true);
+  
+  const translateY = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: Math.max(Math.min(translateY.value, 0), -150)}],
+  }));
+
+  
+  const gesture = Gesture.Pan()
+  .onUpdate((e) => {
+      console.log('translateY.value', translateY.value);
+      translateY.value = e.translationY;
+    })
 
   const handleAddNewCard = () => {
     setIsModalVisible(true);
@@ -127,55 +141,59 @@ const DebitCard = () => {
         </View>
         <Text style={styles.balance}>{cards?.[currentIndex]?.cardBalance}</Text>
       </View>
-      <Pressable onPress={toggleCardNumberVisibility} style={styles.cardNumberVisibilityContainer}>
-        {cardNumberVisible ? <HideDetailsIcon /> : <ShowDetailsIcon />}
-        <Text style={styles.cardNumberVisibilityText}>{cardNumberVisible ? 'Hide Card Number' : 'Show Card Number'}</Text>
-      </Pressable>
-      <Carousel
-        loop={false}
-        width={Dimensions.get('window').width}
-        height={220}
-        autoPlay={false}
-        data={cards}
-        scrollAnimationDuration={1000}
-        onSnapToItem={(index) => setCurrentIndex(index)}
-        renderItem={renderCard}
-        style={styles.carousel}
-        onProgressChange={progress}
-      />
-      {cards && cards?.length > 1 && <Pagination.Basic<ICard>
-        progress={progress}
-        data={cards}
-        size={8}
-        dotStyle={styles.paginationDot}
-        activeDotStyle={styles.paginationActiveDot}
-        containerStyle={styles.paginationContainer}
-        horizontal
-      />}
-      <ScrollView style={styles.scrollView}>
-        <MainScreenListView title="Top-up account" subtitle="Deposit money to your account to use with card">
-          <TopUpAccountIcon />
-        </MainScreenListView>
-        <MainScreenListView title="Weekly spending limit" subtitle="You haven't set any spending limit on card" showSwitch={true}>
-          <SpendingLimitIcon />
-        </MainScreenListView>
-        <MainScreenListView 
-          title={ cards[currentIndex]?.cardFreezed ? "Unfreeze card" : "Freeze card" }
-          subtitle={cards[currentIndex]?.cardFreezed ? "Your debit card is currently frozen" : "Your debit card is currently active"} 
-          showSwitch={true}
-          switchValue={cards[currentIndex]?.cardFreezed}
-          onSwitchChange={handleFreezeCard}
-        >
-          <FreezeCardIcon />
-        </MainScreenListView>
-        <MainScreenListView title="Get a new card" subtitle="This deactivates your current debit card">
-          <NewCardIcon />
-        </MainScreenListView>
-        <MainScreenListView title="Deactivated cards" subtitle="Your previously deactivated cards">
-          <DeactivatedCardsIcon />
-        </MainScreenListView>
-        <View style={styles.bottomSpacing}></View>
-      </ScrollView>
+      <GestureDetector gesture={gesture}>
+        <Animated.View style={[animatedStyle]}>
+          <Pressable onPress={toggleCardNumberVisibility} style={styles.cardNumberVisibilityContainer}>
+            {cardNumberVisible ? <HideDetailsIcon /> : <ShowDetailsIcon />}
+            <Text style={styles.cardNumberVisibilityText}>{cardNumberVisible ? 'Hide Card Number' : 'Show Card Number'}</Text>
+          </Pressable>
+          <Carousel
+            loop={false}
+            width={Dimensions.get('window').width}
+            height={220}
+            autoPlay={false}
+            data={cards}
+            scrollAnimationDuration={1000}
+            onSnapToItem={(index) => setCurrentIndex(index)}
+            renderItem={renderCard}
+            style={styles.carousel}
+            onProgressChange={progress}
+          />
+          {cards && cards?.length > 1 && <Pagination.Basic<ICard>
+            progress={progress}
+            data={cards}
+            size={8}
+            dotStyle={styles.paginationDot}
+            activeDotStyle={styles.paginationActiveDot}
+            containerStyle={styles.paginationContainer}
+            horizontal
+          />}
+          <View style={styles.scrollView}>
+            <MainScreenListView title="Top-up account" subtitle="Deposit money to your account to use with card">
+              <TopUpAccountIcon />
+            </MainScreenListView>
+            <MainScreenListView title="Weekly spending limit" subtitle="You haven't set any spending limit on card" showSwitch={true}>
+              <SpendingLimitIcon />
+            </MainScreenListView>
+            <MainScreenListView 
+              title={ cards[currentIndex]?.cardFreezed ? "Unfreeze card" : "Freeze card" }
+              subtitle={cards[currentIndex]?.cardFreezed ? "Your debit card is currently frozen" : "Your debit card is currently active"} 
+              showSwitch={true}
+              switchValue={cards[currentIndex]?.cardFreezed}
+              onSwitchChange={handleFreezeCard}
+            >
+              <FreezeCardIcon />
+            </MainScreenListView>
+            <MainScreenListView title="Get a new card" subtitle="This deactivates your current debit card">
+              <NewCardIcon />
+            </MainScreenListView>
+            <MainScreenListView title="Deactivated cards" subtitle="Your previously deactivated cards">
+              <DeactivatedCardsIcon />
+            </MainScreenListView>
+            <View style={styles.bottomSpacing}></View>
+          </View>
+        </Animated.View>
+      </GestureDetector>
       <Modal isVisible={isModalVisible} hasBackdrop={true} backdropOpacity={0.8} backdropColor={'#000'} onBackdropPress={() => setIsModalVisible(false)}>
         <View style={styles.modalContainer}>
           <TextInput 
@@ -388,7 +406,6 @@ const styles = StyleSheet.create({
     height: 44,
     position: 'absolute',
     right: 0,
-    top: 205,
     paddingTop: 8,
     borderTopLeftRadius: 6,
     borderTopRightRadius: 6,
