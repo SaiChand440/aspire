@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Line, G, Defs } from 'react-native-svg';
+import Svg, { Path, G, Defs } from 'react-native-svg';
 
 const ShowDetailsIcon = () => {
     return (

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Svg, { Circle, G, Path, Defs, ClipPath, Rect } from 'react-native-svg';
+import Svg, { Circle, G, Path } from 'react-native-svg';
 
 interface SpendingLimitIconProps {
   width?: number;

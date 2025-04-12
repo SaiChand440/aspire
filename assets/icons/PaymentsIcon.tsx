@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Svg, { Defs, G, Path, Rect } from 'react-native-svg';
+import Svg, { G, Path, Rect } from 'react-native-svg';
 
 interface PaymentsProps {
   color?: string;

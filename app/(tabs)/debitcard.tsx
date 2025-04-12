@@ -28,7 +28,7 @@ const DebitCard = () => {
   const { data: cards, isFetching, isError, refetch } = useGetCardsQuery();
   const [currentIndex, setCurrentIndex] = useState(0);
   const progress = useSharedValue<number>(0);
-  const [addNewCard, { isLoading: isAddingNewCard, isError: isAddingNewCardError }] = useAddNewCardMutation();
+  const [addNewCard, { isError: isAddingNewCardError }] = useAddNewCardMutation();
   const [freezeCard] = useFreezeCardMutation();
   const inputRef = useRef<TextInput>(null);
   const [cardName, setCardName] = useState('');
