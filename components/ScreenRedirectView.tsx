@@ -3,8 +3,8 @@ import { Colors } from '@/constants/Colors';
 
 export default function ScreenRedirectView() {
   return (
-    <View style={styles.titleContainer}>
-      <Text style={styles.title}>Please move ahead to debit card screen to view the test screen</Text>
+    <View testID="redirect-container" style={styles.titleContainer}>
+      <Text testID="redirect-text" style={styles.title}>Please move ahead to debit card screen to view the test screen</Text>
     </View>
   );
 }

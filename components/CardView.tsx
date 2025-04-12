@@ -12,7 +12,10 @@ interface CardViewProps {
 
 const CardView = ({ item, cardNumberVisible }: CardViewProps) => {
     return (
-        <View style={[styles.cardContainer, item.cardFreezed && styles.cardContainerFreezed]}>
+        <View 
+            testID="card-container"
+            style={[styles.cardContainer, item.cardFreezed && styles.cardContainerFreezed]}
+        >
         <View style={styles.logoContainer}>
             <AspireLogoWithText />
         </View>

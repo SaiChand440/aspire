@@ -20,18 +20,19 @@ const MainScreenListView = ({
   onSwitchChange
 }: IMainScreenListView) => {
   return (
-    <View style={styles.container}>
+    <View testID="list-container" style={styles.container}>
       <View style={styles.innerContainer}>
         <View style={styles.iconContainer}>
           {children}
         </View>
         <View>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <Text testID="list-title" style={styles.title}>{title}</Text>
+          <Text testID="list-subtitle" style={styles.subtitle}>{subtitle}</Text>
         </View>
       </View>
       {showSwitch && (
         <Switch 
+          testID="list-switch"
           style={{transform: [{scaleX: 0.8}, {scaleY: 0.8}]}} 
           value={switchValue}
           onValueChange={onSwitchChange}
