@@ -2,7 +2,8 @@
 
 A React Native implementation of the Aspire mobile test with cross-platform support for iOS and Android.
 
-![Demo](https://github.com/user-attachments/assets/063961f2-9263-432d-97e6-cc92ce4ad01e)
+Demo
+https://github.com/user-attachments/assets/063961f2-9263-432d-97e6-cc92ce4ad01e
 
 ## Tech Stack
 
